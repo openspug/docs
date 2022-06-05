@@ -12,6 +12,6 @@ sidebar_position: 3
 
 ## 参与方法
 
-我们创建了独立的 [官网仓库](https://github.com/openspug/spug.dev)，文档位于仓库的 `docs` 目录下，`markdown` 格式的文件。
+我们创建了独立的 [官网仓库](https://github.com/openspug/docs)，`markdown` 格式的文件。
 
 欢迎提交 PR.
