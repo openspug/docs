@@ -1,3 +1,3 @@
 ### Spug documents
 
-https://spug.cc
+https://spug.cc/docs/about-spug/
