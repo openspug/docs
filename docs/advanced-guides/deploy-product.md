@@ -40,7 +40,7 @@ tar xf web_x.y.z.tar.gz -C /data/spug/spug_web/;
 如需要使用常规发布功能，则需要安装 <font color="red">git v2.17.0+</font>。
 ```bash
 # 安装依赖
-yum install mariadb-devel python3-devel gcc openldap-devel redis nginx supervisor
+yum install mariadb-devel python3-devel gcc openldap-devel redis nginx supervisor rsync sshfs
 
 # 创建虚拟环境
 cd /data/spug/spug_api
