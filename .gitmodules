@@ -1,0 +1,4 @@
+[submodule "docs"]
+	url  = https://gitee.com/openspug/docs
+	path = docs
+
