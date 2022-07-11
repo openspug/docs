@@ -23,57 +23,68 @@ sidebar_position: 1
 ```bash
 yum install -y yum-utils
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install docker-ce docker-ce-cli containerd.io
+yum install docker-ce docker-compose-plugin
+systemctl enable docker
 systemctl start docker
 ```
 
-### 2. 拉取镜像
-
-:::tip 提示
-阿里云的镜像与 [Docker hub](https://hub.docker.com/r/openspug/spug/tags) 同步更新，国内用户建议使用阿里云的镜像。
-:::
+### 2. 创建docker-compose.yml
 
 ```bash
-docker pull registry.aliyuncs.com/openspug/spug
+vi docker-compose.yml
+```
+```yaml
+version: "3.9"
+services:
+  db:
+    image: mariadb:10.8
+    container_name: spug-db
+    restart: always
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - /data/spug/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=spug
+      - MYSQL_USER=spug
+      - MYSQL_PASSWORD=spug.cc
+      - MYSQL_ROOT_PASSWORD=spug.cc
+  spug:
+    image: openspug/spug-service
+    container_name: spug
+    privileged: true
+    restart: always
+    volumes:
+      - /data/spug/service:/data/spug
+      - /data/spug/repos:/data/repos
+    ports:
+      # 如果80端口被占用可替换为其他端口，例如: - "8000:80"
+      - "80:80"
+    environment:
+      - SPUG_DOCKER_VERSION=v3.2.0
+      - MYSQL_DATABASE=spug
+      - MYSQL_USER=spug
+      - MYSQL_PASSWORD=spug.cc
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+    depends_on:
+      - db
 ```
 
 ### 3. 启动容器
-如果需要持久化存储代码和数据，可以添加：-v 映射容器内/data路径。
-:::tip 提示
-官方镜像内置了 `Mysql` 数据库，如果需要使用外部已有数据库（Mysql 5.6+），可以参考 [此文档](/docs/install-problem#use-mysql) 
-设置后再进行下一步的初始化操作。
-:::
-
-:::caution 注意
-根据需要，以下两种启动方式任选其一即可。
-:::
 
 ```bash
-# 持久化存储启动命令：
-# /spug 指的是映射本地的磁盘路径，也可以是其他目录，/data是容器内代码和数据初始化存储的路径
-docker run -d --restart=always --name=spug -p 80:80 -v /spug:/data registry.aliyuncs.com/openspug/spug
-
-# 如果你需要在spug内使用docker命令则需要添加额外的参数
-docker run -d --restart=always --name=spug -p 80:80 -v /spug/:/data -v /var/run/docker.sock:/var/run/docker.sock -v /usr/bin/docker:/usr/bin/docker registry.aliyuncs.com/openspug/spug
+docker compose up -d
 ```
 
 ### 4. 初始化
-以下操作会创建一个用户名为 `admin` 密码为 `spug.dev` 的管理员账户，可自行替换管理员账户。
-:::caution 注意
-如果提示连接数据失败，再次执行尝试就可以了。
-:::
+以下操作会创建一个用户名为 `admin` 密码为 `spug.dev` 的管理员账户，可自行替换管理员账户/密码。
 
 ```bash
 docker exec spug init_spug admin spug.dev
 ```
 
 ### 5. 访问测试
-在浏览器中输入 `http://localhost:80` 访问。  
-
-```
-用户名： admin  
-密码： spug.dev
-```
+在浏览器中输入 `http://localhost:80` 访问（默认账户密码在第4步初始化时设置）。
 
 ### 6. 版本升级
 你可以在 `系统管理/系统设置/关于` 中查看当前运行的 `Spug` 版本，可以在 [更新日志](/docs/change-log) 
