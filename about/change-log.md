@@ -23,6 +23,7 @@ sidebar_position: 2
 - 🐞 修复编辑自定义发布申请报错的问题
 
 其他：
+  - 新版docker镜像已支持ARM64
   - 新版docker安装结合了docker compose分离数据库与服务
   - 文件分发模块依赖`rsync`及`sshfs`，需要在部署Spug的主机或容器内安装
 
