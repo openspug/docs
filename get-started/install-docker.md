@@ -40,7 +40,7 @@ services:
     image: mariadb:10.8
     container_name: spug-db
     restart: always
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: --port 3306 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
       - /data/spug/mysql:/var/lib/mysql
     environment:
