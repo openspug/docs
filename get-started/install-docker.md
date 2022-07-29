@@ -37,7 +37,7 @@ vi docker-compose.yml
 version: "3.9"
 services:
   db:
-    image: mariadb:10.8
+    image: mariadb:10.8.2
     container_name: spug-db
     restart: always
     command: --port 3306 --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
