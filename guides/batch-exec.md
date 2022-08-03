@@ -21,7 +21,8 @@ sidebar_position: 2
 
 | 变量名 | 示例 | 说明 |
 |--|--|--|
-| SPUG_HOST_ID | 1 | 主机ID |
+| SPUG_HOST_ID | 1| 主机ID |
+| SPUG_HOST_NAME | webserver01  | 主机名称 |
 | SPUG_HOST_HOSTNAME | 172.10.26.5 | 主机IP/域名 |
 | SPUG_SSH_PORT | 22 | SSH连接端口 |
 | SPUG_SSH_USERNAME | root | SSH连接用户 |
