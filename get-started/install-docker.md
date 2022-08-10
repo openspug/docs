@@ -34,7 +34,7 @@ systemctl start docker
 vi docker-compose.yml
 ```
 ```yaml
-version: "3.9"
+version: "3.3"
 services:
   db:
     image: mariadb:10.8.2
@@ -60,7 +60,6 @@ services:
       # 如果80端口被占用可替换为其他端口，例如: - "8000:80"
       - "80:80"
     environment:
-      - SPUG_DOCKER_VERSION=v3.2.4
       - MYSQL_DATABASE=spug
       - MYSQL_USER=spug
       - MYSQL_PASSWORD=spug.cc
