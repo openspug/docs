@@ -28,6 +28,7 @@ git clone https://github.com/openspug/spug /data/spug
 cd /data/spug/spug_api
 python3 -m venv venv
 source venv/bin/activate
+pip install -U pip setuptools
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 ```
 
