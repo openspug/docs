@@ -72,7 +72,7 @@ services:
 ### 3. 启动容器
 
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 ### 4. 初始化
