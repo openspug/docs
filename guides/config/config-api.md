@@ -55,7 +55,7 @@ sidebar_position: 5
 - 使用示例1
     
     ```shell script
-    curl "https://demo.spug.dev/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test"
+    curl "https://demo.spug.cc/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test"
     ```
     输出如下
     ```shell script
@@ -73,7 +73,7 @@ sidebar_position: 5
 - 使用示例2
     
     ```shell script
-    curl "https://demo.spug.dev/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test&noPrefix=1"
+    curl "https://demo.spug.cc/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test&noPrefix=1"
     ```
     输出如下
     ```shell script
