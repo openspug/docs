@@ -72,8 +72,11 @@ services:
 ### 3. 启动容器
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
+:::caution 注意
+docker-compose 安装方式不同，您也可能需要执行 `docker-compose up -d`
+:::
 
 ### 4. 初始化
 以下操作会创建一个用户名为 `admin` 密码为 `spug.dev` 的管理员账户，可自行替换管理员账户/密码。
