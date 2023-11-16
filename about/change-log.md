@@ -7,6 +7,13 @@ sidebar_position: 2
 
 ### [如何升级新版本？](/docs/update-version/)
 
+
+## 3.3.0
+`2023-11-16`
+
+- 🌟 集成了推送助手，提供监控和任务的短信、电话告警支持 [参考文档](https://push.spug.cc/guide/spug)
+- 🐞 修复主机列表弹框某些情况下未显示主机信息的问题 by @allwaysLove
+
 ## 3.2.7
 `2023-04-18`
 

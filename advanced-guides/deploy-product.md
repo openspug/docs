@@ -87,7 +87,7 @@ python manage.py updatedb
 ````
 ### 6. 创建默认管理员账户
 ```bash
-python manage.py user add -u admin -p spug.dev -s -n 管理员
+python manage.py user add -u admin -p spug.cc -s -n 管理员
 
 # -u 用户名
 # -p 密码
@@ -186,9 +186,9 @@ systemctl restart supervisord
 ```
 
 ### 10. 访问测试
-通过浏览器访问测试。
+通过浏览器访问测试（默认账户密码在第 6 步设置）。
 
 
 ### 11. 安全建议
 - 请确保安装的 `Redis` 仅监听在 `127.0.0.1`。如果需要使用密码认证的 `Redis` 请参考 [如何配置使用带密码的 Redis 服务？](/docs/install-problem/#use-redis)
-- 确保服务端接收到请求 `HTTP Header` 的 ` X-Real-IP` 为真实的客户端地址，`Spug` 会使用该 IP 提高安全性（当登用户的 IP 发生变化时 Token 自动失效），[参考文档](/docs/practice)。
+- 如添加外层代理服务，请正确配置 `HTTP Header` 的 `X-Forwarded-For` ，`Spug` 会使用该请求头提高安全性（当登用户的 IP 发生变化时 Token 自动失效），[参考文档](/docs/practice)。

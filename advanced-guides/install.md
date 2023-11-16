@@ -39,7 +39,7 @@ python manage.py updatedb
 ````
 ### 4. 创建默认管理员账户
 ```bash
-python manage.py user add -u admin -p spug.dev -s -n 管理员
+python manage.py user add -u admin -p spug.cc -s -n 管理员
 
 # -u 用户名
 # -p 密码

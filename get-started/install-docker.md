@@ -79,10 +79,10 @@ docker-compose 安装方式不同，您也可能需要执行 `docker-compose up 
 :::
 
 ### 4. 初始化
-以下操作会创建一个用户名为 `admin` 密码为 `spug.dev` 的管理员账户，可自行替换管理员账户/密码。
+以下操作会创建一个用户名为 `admin` 密码为 `spug.cc` 的管理员账户，可自行替换管理员账户/密码。
 
 ```bash
-docker exec spug init_spug admin spug.dev
+docker exec spug init_spug admin spug.cc
 ```
 
 ### 5. 访问测试
