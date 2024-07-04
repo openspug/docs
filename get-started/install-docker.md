@@ -69,11 +69,13 @@ services:
       - db
 ```
 :::caution 注意
-受网络影响可能会导致镜像下载失败，可以替换`docker-compose.yml`文件中的镜像地址：
+受网络影响可能会导致镜像下载失败，可以替换 `docker-compose.yml` 文件中的镜像地址：
+```yaml
 db:
     image: registry.cn-hangzhou.aliyuncs.com/openspug/mariadb:10.8.2
 spug:
     image: registry.cn-hangzhou.aliyuncs.com/openspug/spug-service
+```
 :::
 
 ### 3. 启动容器
