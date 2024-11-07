@@ -76,3 +76,23 @@ server {
 钉钉机器人安全设置中 **IP地址** 添加部署 `Spug` 的服务器的公网地址，或者使用 **自定义关键词** 填写 `通知`，如下图
 
 ![about](https://cdn.spug.cc/v2/install-error-dd.png)
+
+### 发布任务执行时命令找不到提示 `xx: not found`？ {#command-not-found}
+`Spug` 执行发布任务时，可能会在主机上执行一些命令，如果提示命令找不到，可以尝试在发布配置中的 `应用发布前执行` 或 `应用发布后执行` 中添加 `export PATH=$PATH:/xxx` 以加载环境变量。
+
+也可以进入容器设置环境变量使全局生效，例如：
+
+```bash
+docker exec -it spug bash
+vi /data/spug/env
+```
+添加以下内容：
+:::caution 注意
+`/data/spug/env` 此文件名及路径固定的不要修改，Spug会在容器启动时执行。
+:::
+
+```bash
+export PATH=$PATH:/usr/local/bin
+export JAVA_HOME=/usr/local/jdk
+```
+保存后，重启容器即可全局生效。
