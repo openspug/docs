@@ -16,7 +16,7 @@ sidebar_position: 2
 确认系统是否开启了 `selinux`。如果开启可通过执行 `setenforce 0` 来临时关闭后重试。
 
 ### 登录报错 请求失败: 504 Gateway Timeout
-请确认 api 服务已启动。手动部署时 api 监听在 `127.0.0.1:9001`（见 `spug_api/tools/start-api.sh`），Nginx 配置中 `/api/` 的 `proxy_pass` 需要指向该地址；二次开发时前端通过 `spug_web/src/setupProxy.js` 代理到 `http://127.0.0.1:8000`，请确保后端（`python manage.py runserver` 或 `daphne`）监听在该端口，见[二次开发](/docs/install)。
+请确认 api 服务已启动。手动部署时 api 监听在 `127.0.0.1:9001`（见 `spug_api/tools/start-api.sh`），Nginx 配置中 `/api/` 的 `proxy_pass` 需要指向该地址；二次开发时前端通过 `spug_web/src/setupProxy.js` 代理到 `http://127.0.0.1:8000`，请确保 `python manage.py runserver` 监听在该端口。
 
 ### 登录报错 请求失败: 502 Bad Gateway
 请确保 api 服务已正常启动且 `nginx` 配置正确。另可查看 `nginx` 日志，如有发现 `13: Permission denied` 字样的报错则可尝试关闭 `selinux` 后再测试。

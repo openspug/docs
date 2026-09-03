@@ -62,10 +62,7 @@ python manage.py user add -u admin -p spug.cc -s -n 管理员
 python manage.py runserver
 ```
 
-`runserver` 只提供 HTTP 接口（默认 `http://127.0.0.1:8000`），不提供 WebSocket。Web 终端、批量执行 / 发布 / 流水线的实时输出等功能依赖 WebSocket，调试这些功能时请改用 `daphne` 启动后端，它同时提供 HTTP 与 WebSocket，但修改代码后需要手动重启：
-```bash
-daphne -b 127.0.0.1 -p 8000 spug.asgi:application
-```
+`runserver` 通过 `daphne` 同时提供 HTTP 接口与 WebSocket 服务（默认 `http://127.0.0.1:8000`），Web 终端、批量执行 / 发布 / 流水线的实时输出都可以直接调试。
 
 ### 6. 安装前端依赖
 可以把 `npm` 用 `yarn` 或 `pnpm` 代替。
@@ -79,11 +76,7 @@ npm install --registry=https://registry.npmmirror.com
 npm start
 ```
 
-前端通过 `src/setupProxy.js` 把 `/api` 请求代理到后端的 8000 端口。
-
-:::caution 注意
-`src/setupProxy.js` 中 `ws` 配置项出现了两次，目前生效的是末尾的 `ws: false`，开发服务器不会转发 WebSocket。调试 Web 终端、实时输出等功能时，请把末尾的 `ws: false` 改为 `ws: true` 并重启 `npm start`，同时后端需用 `daphne` 启动（见第 5 步）。
-:::
+前端通过 `src/setupProxy.js` 把 `/api` 请求（含 WebSocket）代理到后端的 8000 端口。
 
 ### 8. 访问测试
 正常情况下 `npm start` 会自动在浏览器中打开项目，如果未打开可以在浏览器中输入 `http://localhost:3000` 访问。
