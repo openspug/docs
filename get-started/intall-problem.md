@@ -16,7 +16,7 @@ sidebar_position: 2
 确认系统是否开启了 `selinux`。如果开启可通过执行 `setenforce 0` 来临时关闭后重试。
 
 ### 登录报错 请求失败: 504 Gateway Timeout
-请确认 api 服务已启动。手动部署时 api 监听在 `127.0.0.1:9001`（见 `spug_api/tools/start-api.sh`），Nginx 配置中 `/api/` 的 `proxy_pass` 需要指向该地址；二次开发时前端通过 `spug_web/src/setupProxy.js` 代理到 `http://localhost:8000`，请确保 `python manage.py runserver` 监听的端口一致。
+请确认 api 服务已启动。手动部署时 api 监听在 `127.0.0.1:9001`（见 `spug_api/tools/start-api.sh`），Nginx 配置中 `/api/` 的 `proxy_pass` 需要指向该地址；二次开发时前端通过 `spug_web/src/setupProxy.js` 代理到 `http://127.0.0.1:8000`，请确保后端（`python manage.py runserver` 或 `daphne`）监听在该端口，见[二次开发](/docs/install)。
 
 ### 登录报错 请求失败: 502 Bad Gateway
 请确保 api 服务已正常启动且 `nginx` 配置正确。另可查看 `nginx` 日志，如有发现 `13: Permission denied` 字样的报错则可尝试关闭 `selinux` 后再测试。
@@ -29,13 +29,13 @@ sidebar_position: 2
 这些功能的实时输出通过 WebSocket 推送，请确认 `spug-ws` 服务（`daphne`）已启动，并且 Nginx 中 `/api/ws/` 路径配置了 WebSocket 转发，[参考文档](/docs/use-problem#websocket)。
 
 ### 添加主机报错 Exception: not a vaild RSA private key file
-当 `Spug` 生成的密钥对无法通过验证时会抛出该错误，请检查 `系统管理 / 系统设置 / 密钥设置` 中上传的密钥是否为有效的私钥（支持 RSA、Ed25519、ECDSA 格式），或者清空后由 `Spug` 自动生成。
+当 `Spug` 生成的密钥对无法通过验证时会抛出该错误，请检查 `系统管理 / 系统设置 / 密钥设置` 中上传的密钥是否为有效的私钥（支持 RSA、Ed25519、ECDSA、DSA 格式，`Spug` 自动生成的是 2048 位 RSA 密钥），或者清空后由 `Spug` 自动生成。
 
 ### 如何配置使用带密码的 Redis 服务？ {#use-redis}
 假设 `Redis` 密码为 `foo123`，则需要更改配置文件 `spug_api/spug/overrides.py`（推荐）或者 `settings.py`（影响后续版本升级）如下内容，修改完成后记得重启服务。
 
 :::tip 提示
-自定义的配置可以在 `spug_api/spug/` 目录下创建 `overrides.py` 文件来覆盖默认的配置，Docker 安装的该文件位于宿主机 `/data/spug/service/spug_api/spug/overrides.py`。
+自定义的配置可以在 `spug_api/spug/` 目录下创建 `overrides.py` 文件来覆盖默认的配置，Docker 安装的该文件位于宿主机 `/data/spug/service/spug_api/spug/overrides.py`。`overrides.py` 中的配置项是整体覆盖而不是合并，请保留 `settings.py` 中该字典的其余键（如 `CACHES` 的 `KEY_PREFIX`，`CHANNEL_LAYERS` 的 `prefix` / `capacity` / `expiry`），只修改地址与密码。
 :::
 
 ```bash title="vi spug_api/spug/overrides.py"
@@ -43,6 +43,7 @@ CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://:foo123@127.0.0.1:6379/1",
+        "KEY_PREFIX": "spug",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -54,6 +55,9 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": ["redis://:foo123@127.0.0.1:6379/0"],
+            "prefix": "spug:channel",
+            "capacity": 1000,
+            "expiry": 120,
         },
     },
 }

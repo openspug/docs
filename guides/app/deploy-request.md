@@ -78,6 +78,6 @@ sidebar_position: 4
 | 发布异常 | 有主机发布失败，可以补偿或全量重新发布 |
 
 :::tip 提示
-- 通过 [Webhook 自动发布](/docs/deploy-webhook) 触发的申请单类型为 `Webhook触发`，标题会自动取自提交信息。
+- 通过 [Webhook 自动发布](/docs/deploy-webhook) 触发的申请单类型为 `Webhook触发`，标题会自动取自提交信息的前 20 个字符（Tag 触发时为 Tag 名）。
 - 发布申请的时间默认展示为相对时间，鼠标悬停可查看完整时间。
 :::

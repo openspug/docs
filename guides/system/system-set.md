@@ -29,7 +29,7 @@ sidebar_position: 5
 
 - **LDAP服务地址 / 绑定DN / 密码**：用于查询用户的 LDAP 服务器地址（如 `ldap://ldap.example.com:389`）以及绑定账户。
 - **用户OU**：用户所在的 OU，例如 `ou=users,dc=example,dc=com`。
-- **用户过滤器**：查询用户的过滤条件，例如 `(objectClass=person)`。
+- **用户过滤器**：用于定位用户的过滤条件，需要包含 `%(user)s` 占位符，例如 `(cn=%(user)s)`、`(uid=%(user)s)` 或 `(sAMAccountName=%(user)s)`。
 - **登录名映射 / 姓名映射**：把 LDAP 用户的属性映射到 `Spug` 账户的登录名与姓名，例如 `cn` 与 `sn`。
 - **测试**：填写一个 LDAP 用户的登录名和密码验证配置是否正确。
 - **LDAP 用户导入**：从 LDAP 拉取用户列表并批量导入为 `Spug` 账户，导入后再为账户分配角色。
@@ -40,7 +40,7 @@ sidebar_position: 5
 
 ![密钥设置](/img/docs/4.0/zh/setting-key.jpg)
 
-在这里你可以上传并使用已有的密钥对作为全局密钥，没有上传密钥的情况下，`Spug` 会在首次添加主机时自动生成密钥对。支持 RSA、Ed25519、ECDSA 格式。
+在这里你可以上传并使用已有的密钥对作为全局密钥，没有上传密钥的情况下，`Spug` 会在首次添加主机时自动生成密钥对。支持 RSA、Ed25519、ECDSA、DSA 格式，自动生成的为 2048 位 RSA 密钥。
 
 :::caution 注意
 更换全局密钥后，已经通过旧密钥验证的主机需要重新验证。

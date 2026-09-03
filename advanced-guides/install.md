@@ -10,7 +10,7 @@ title: 二次开发
 ## 依赖环境
 
 - Python 3.8 及以上
-- Node.js 14 及以上（推荐 16 LTS）
+- Node.js 18 及以上（推荐 20 LTS；前端的 `npm start` / `npm run build` 脚本带有 `--openssl-legacy-provider` 参数，Node 16 及以下无法运行）
 - Redis 5.0 及以上
 - Git 2.17.0 及以上（常规发布需要）
 - 现代浏览器
@@ -21,6 +21,7 @@ title: 二次开发
 | --- | --- |
 | `spug_api` | 后端，Django 4.2 + channels 4，各功能模块位于 `apps/` 目录（host、exec、deploy、pipeline、credential、schedule、monitor、alarm、config、setting 等） |
 | `spug_web` | 前端，React 16 + antd 4 + mobx，页面位于 `src/pages`，英文词典位于 `src/locales/en` |
+| `spug_web2` | 基于 Vite + React 18 + antd 5 的新版前端雏形，尚未启用，4.0 使用的仍是 `spug_web` |
 | `docs/docker` | 官方 Docker 镜像的构建文件 |
 
 ## 安装步骤
@@ -61,7 +62,10 @@ python manage.py user add -u admin -p spug.cc -s -n 管理员
 python manage.py runserver
 ```
 
-`runserver` 通过 `channels` 同时提供 HTTP 接口与 WebSocket 服务（默认 `http://127.0.0.1:8000`）。
+`runserver` 只提供 HTTP 接口（默认 `http://127.0.0.1:8000`），不提供 WebSocket。Web 终端、批量执行 / 发布 / 流水线的实时输出等功能依赖 WebSocket，调试这些功能时请改用 `daphne` 启动后端，它同时提供 HTTP 与 WebSocket，但修改代码后需要手动重启：
+```bash
+daphne -b 127.0.0.1 -p 8000 spug.asgi:application
+```
 
 ### 6. 安装前端依赖
 可以把 `npm` 用 `yarn` 或 `pnpm` 代替。
@@ -76,6 +80,10 @@ npm start
 ```
 
 前端通过 `src/setupProxy.js` 把 `/api` 请求代理到后端的 8000 端口。
+
+:::caution 注意
+`src/setupProxy.js` 中 `ws` 配置项出现了两次，目前生效的是末尾的 `ws: false`，开发服务器不会转发 WebSocket。调试 Web 终端、实时输出等功能时，请把末尾的 `ws: false` 改为 `ws: true` 并重启 `npm start`，同时后端需用 `daphne` 启动（见第 5 步）。
+:::
 
 ### 8. 访问测试
 正常情况下 `npm start` 会自动在浏览器中打开项目，如果未打开可以在浏览器中输入 `http://localhost:3000` 访问。

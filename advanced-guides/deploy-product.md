@@ -11,7 +11,7 @@ title: 手动部署
 ## 准备环境
 
 - Python 3.8 及以上
-- MySQL 5.7 / MariaDB 10.3 及以上
+- MySQL 8.0.11 及以上 / MariaDB 10.4 及以上（Django 4.2 的最低要求，官方 Docker 镜像使用 MariaDB 10.8）
 - Redis 5.0 及以上
 - Git 2.17.0 及以上（影响新建常规发布申请单）
 - rsync、sshfs（文件分发与流水线数据传输需要）、ping（监控 Ping 检测需要）
@@ -24,7 +24,7 @@ title: 手动部署
 ```bash
 git clone https://github.com/openspug/spug /data/spug
 cd /data/spug
-git checkout 4.0
+git checkout v4.0.0
 ```
 
 ### 2. 下载已编译打包后的前端项目
@@ -42,10 +42,10 @@ tar xf /tmp/web_v4.0.0.tar.gz -C /data/spug/spug_web/
 ### 3. 创建运行环境
 ```bash
 # CentOS 安装依赖
-yum install -y mariadb-devel python3-devel gcc openldap-devel redis nginx supervisor rsync fuse-sshfs iputils git
+yum install -y mariadb-devel python3-devel gcc pkgconfig openldap-devel cyrus-sasl-devel openssl-devel redis nginx supervisor rsync fuse-sshfs iputils git
 
 # Ubuntu / Debian 安装依赖
-# apt install -y libmariadb-dev python3-dev python3-venv gcc libldap2-dev libsasl2-dev redis-server nginx supervisor rsync sshfs iputils-ping git
+# apt install -y libmariadb-dev python3-dev python3-venv gcc pkg-config libldap2-dev libsasl2-dev libssl-dev redis-server nginx supervisor rsync sshfs iputils-ping git
 
 # 创建虚拟环境
 cd /data/spug/spug_api
@@ -55,7 +55,7 @@ source venv/bin/activate
 # 安装python包
 pip install -U pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple/
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
-pip install gunicorn mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/
+pip install mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/   # gunicorn、daphne 已包含在 requirements.txt 中
 ```
 
 ### 4. 修改后端配置
@@ -135,7 +135,7 @@ stdout_logfile = /data/spug/spug_api/logs/scheduler.log
 redirect_stderr = true
 ```
 
-各服务说明：`spug-api` 为 HTTP 接口（gunicorn，`127.0.0.1:9001`），`spug-ws` 为 WebSocket 服务（daphne，`127.0.0.1:9002`），`spug-worker` 执行批量执行、发布、流水线等任务，`spug-monitor` 与 `spug-scheduler` 分别为监控与任务计划的调度进程。`Ubuntu / Debian` 的 supervisor 配置目录为 `/etc/supervisor/conf.d/`，文件名后缀为 `.conf`。
+该配置与仓库中的 `spug_api/tools/supervisor-spug.ini` 完全相同，也可以直接复制：`cp /data/spug/spug_api/tools/supervisor-spug.ini /etc/supervisord.d/spug.ini`。各服务说明：`spug-api` 为 HTTP 接口（gunicorn，`127.0.0.1:9001`），`spug-ws` 为 WebSocket 服务（daphne，`127.0.0.1:9002`），`spug-worker` 执行批量执行、发布、流水线等任务，`spug-monitor` 与 `spug-scheduler` 分别为监控与任务计划的调度进程。`Ubuntu / Debian` 的 supervisor 配置目录为 `/etc/supervisor/conf.d/`，文件名后缀为 `.conf`。
 
 ### 8. 创建前端nginx配置文件
 ```bash title="/etc/nginx/conf.d/spug.conf"

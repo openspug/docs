@@ -63,9 +63,9 @@ sidebar_position: 1
 | --- | --- |
 | Python | 3.8 及以上 |
 | Django | 4.2 |
-| Node.js | 14 及以上（仅二次开发前端时需要） |
+| Node.js | 18 及以上（仅二次开发前端时需要，推荐 20 LTS） |
 | Redis | 5.0 及以上 |
-| 数据库 | MySQL / MariaDB（Docker 安装内置），二次开发可使用 SQLite |
+| 数据库 | MySQL 8.0.11 及以上 / MariaDB 10.4 及以上（Docker 安装内置 MariaDB 10.8），二次开发可使用 SQLite 3.21 及以上 |
 
 ## 相关链接
 

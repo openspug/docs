@@ -27,7 +27,7 @@ nohup ./startup.sh > /dev/null 2>&1 &
 `Spug` 无法提供交互式的输入账户密码登录 git 仓库的能力，如果是公开的仓库 `http/https/ssh` 任何一种协议都可以，但如果是私有仓库推荐在发布配置的 `Git仓库地址` 旁点击 **私有仓库？** 按照提示配置：
 
 - **密钥** 认证：把 `Spug` 的公钥添加到代码托管平台的部署公钥（Deploy Key）中，仓库地址使用 `ssh` 协议。
-- **账户密码** 认证：仓库地址使用 `http/https` 协议，填写账户和密码（或 Access Token），`Spug` 会自动拼接为 `https://yourname:password@gitee.com/openspug/spug.git` 的形式，如果账户名中包含了 `@` 符号则需要替换成 `%40`。
+- **账户密码** 认证：仓库地址使用 `http/https` 协议，填写账户和密码（或 Access Token），`Spug` 会自动拼接为 `https://yourname:password@gitee.com/openspug/spug.git` 的形式，账户名或密码中的 `@`、`/` 等特殊字符会被自动转义，无需手工替换。
 
 特别要注意的是，如果你是通过 Docker 方式部署的则需要确保在容器内可以访问仓库，而不是在宿主机上。流水线的构建节点则通过 [凭据管理](/docs/system-credential) 中的凭据访问私有仓库。
 
@@ -89,22 +89,20 @@ server {
 ### 发布任务执行时命令找不到提示 `xx: not found`？ {#command-not-found}
 `Spug` 执行发布任务时，可能会在主机上执行一些命令，如果提示命令找不到，可以尝试在发布配置中的 `应用发布前执行` 或 `应用发布后执行` 中添加 `export PATH=$PATH:/xxx` 以加载环境变量。
 
-也可以进入容器设置环境变量使全局生效，例如：
+Docker 部署时，`4.0.0` 镜像启动时不再读取 3.x 的 `/data/spug/env` 文件，需要在容器内全局生效的环境变量请写在 `docker-compose.yml` 中 `spug` 服务的 `environment` 里，然后执行 `docker compose up -d` 重建容器：
 
-```bash
-docker exec -it spug bash
-vi /data/spug/env
+```yaml
+    environment:
+      - JAVA_HOME=/usr/local/jdk
+      - PATH=/usr/local/jdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      # ……SPUG_DOCKER_VERSION、MYSQL_* 等原有变量保持不变
 ```
-添加以下内容：
+
 :::caution 注意
-`/data/spug/env` 此文件名及路径固定的不要修改，Spug 会在容器启动时执行。
+- `PATH` 会整体覆盖镜像的默认值，请保留上面的系统目录。
+- 这些变量只对在 Spug 容器内执行的步骤生效（如常规发布的 `代码检出前 / 后执行`），`应用发布前 / 后执行` 在目标主机上执行，使用目标主机自身的环境。
+- 容器重建后镜像层内手动安装的软件会丢失，JDK、Node 等工具建议放在挂载目录 `/data/spug`（宿主机 `/data/spug/service`）下。
 :::
-
-```bash
-export PATH=$PATH:/usr/local/bin
-export JAVA_HOME=/usr/local/jdk
-```
-保存后，重启容器即可全局生效。
 
 ### 文件分发或流水线数据传输提示 sshfs / rsync 相关错误
 文件分发与流水线的数据传输、数据上传节点依赖部署 `Spug` 的主机（或容器）上的 `rsync` 与 `sshfs`，同时目标主机需要安装 `rsync`。官方 Docker 镜像已内置，手动部署请自行安装；Docker 部署时容器需要 `privileged: true` 才能执行 `sshfs` 挂载。

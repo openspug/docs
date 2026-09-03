@@ -14,7 +14,7 @@ source venv/bin/activate
 python manage.py runworker
 ```
 
-同时实时输出依赖 WebSocket 服务，二次开发环境下 `python manage.py runserver` 已通过 `channels` 同时提供 HTTP 与 WebSocket 服务，无需额外启动。
+实时输出还依赖 WebSocket 服务，`python manage.py runserver` 只提供 HTTP 接口，请按 [二次开发](/docs/install) 文档改用 `daphne -b 127.0.0.1 -p 8000 spug.asgi:application` 启动后端。
 
 ### 标准安装任务计划模块添加的任务不会执行
 任务计划功能需要启动额外的服务，通过以下命令启动

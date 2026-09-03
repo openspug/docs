@@ -65,7 +65,7 @@ Docker Hub 上的 `latest` 标签目前仍是 3.3.3，只执行 `docker compose 
    rm -rf venv && python3 -m venv venv
    source venv/bin/activate
    pip install -U pip setuptools
-   pip install -r requirements.txt gunicorn mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/
+   pip install -r requirements.txt mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/
    python manage.py updatedb
    ```
 3. 下载 4.0 的前端包 `https://cdn.spug.cc/spug/web_v4.0.0.tar.gz` 解压到 `spug_web` 目录（会生成 `build` 目录）。

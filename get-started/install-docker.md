@@ -144,8 +144,9 @@ docker logs -f spug
 # 进入容器
 docker exec -it spug bash
 
-# 容器内查看各服务状态（api / ws / worker / monitor / scheduler / nginx / redis）
-docker exec spug supervisorctl status
+# 查看容器内各服务进程（gunicorn 为 api、daphne 为 ws，以及 runworker / runmonitor / runscheduler、nginx、redis）
+# 4.0.0 镜像内未开启 supervisor 的 RPC 接口，supervisorctl 命令不可用，重启服务请直接重启容器
+docker exec spug ps -ef
 
 # 重启容器
 docker restart spug
@@ -157,9 +158,9 @@ docker restart spug
 | --- | --- |
 | `/data/spug/spug_api` | 后端代码，配置覆盖文件为 `spug/overrides.py` |
 | `/data/spug/spug_api/logs` | 各后台服务日志 |
-| `/data/spug/env` | 可选的环境变量文件，容器启动时自动 `source`，[参考文档](/docs/use-problem#command-not-found) |
+| `/data/spug/env` | 3.x 镜像的环境变量文件，`4.0.0` 镜像启动时不再读取；需要全局生效的环境变量请写在 `docker-compose.yml` 的 `environment` 中，[参考文档](/docs/use-problem#command-not-found) |
 | `/etc/nginx/nginx.conf` | Nginx 配置 |
-| `/etc/supervisor/conf.d/spug.conf` | 后台服务进程配置 |
+| `/etc/supervisord.conf` | 后台服务进程配置，supervisord 直接使用此文件启动 nginx、redis 与各 Spug 服务 |
 
 ## 安全建议
 
