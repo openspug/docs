@@ -7,6 +7,30 @@ sidebar_position: 2
 
 ### [如何升级新版本？](/docs/update-version/)
 
+:::caution 4.0 升级提示
+4.0 的后端依赖升级为 `Python 3.8+` / `Django 4.2` / `channels 4`，与 3.x 不兼容，请勿直接使用 3.x 的运行环境或 Docker 镜像运行 4.0 代码，升级前务必备份数据库，详见 [版本升级](/docs/update-version#upgrade-4)。
+:::
+
+
+## 4.0.0
+`2026-09-03`
+
+- 🎉 新增 **流水线** 模块，通过节点编排组合参数化、构建、执行命令、数据传输、数据上传以及钉钉 / 飞书 / 企业微信 / 推送助手推送等模块，支持按上游成功 / 失败 / 总是执行的条件分支与实时控制台 [参考文档](/docs/pipeline)
+- 🎉 新增 **凭据管理** 模块，集中管理密码与密钥类凭据，支持共享凭据，流水线构建节点可直接引用 [参考文档](/docs/system-credential)
+- 🎉 界面支持 **简体中文 / English** 双语，可在页面右上角或登录页切换，控制台实时输出、接口错误信息同步翻译
+- 🌟 发布申请新增 **灰度发布**（指定主机发布）与 **补偿发布**（仅发布失败主机），新增“灰度成功”状态
+- 🌟 新增 **推送服务设置**，绑定 [推送助手](https://push.spug.cc) 账户后可在流水线中通过短信、电话、邮件、微信公众号推送消息
+- 🌟 报警联系人新增飞书渠道，钉钉 / 飞书支持机器人加签；监控中心报警方式新增飞书
+- 🌟 发布配置、任务计划的结果通知新增飞书渠道
+- 🌟 构建仓库、发布配置的 Git 仓库支持通过页面辅助配置密钥 / 账户密码认证
+- 🌟 主机管理支持从阿里云 / 腾讯云导入主机、批量验证并同步主机扩展信息（CPU、内存、磁盘、到期时间等），支持导出 Excel
+- 🌟 常规发布支持在执行过程中通过 `SPUG_SET` 动态更新配置中心配置，通过 `SPUG_GEV_*` 在构建与主机阶段之间传递变量
+- 🔧 后端升级至 `Django 4.2` / `channels 4` / `paramiko 3.4`，运行时要求 `Python 3.8+`、`Redis 5.0+`
+- 🔧 SSH 兼容 dash / ash 等 Shell 以及 Ed25519 / ECDSA 密钥，改进 Windows 主机的批量执行与发布
+- 🔧 Docker 镜像基础镜像更换为 `python:3.9-slim-bullseye`，同时提供 amd64 / arm64 架构，内置文件分发与 Ping 检测所需依赖
+- 🔧 前端升级 `antd 4.24` / `xterm 5`，修复控制台白屏等问题
+- 🐞 修复 LDAP 登录过滤器注入、空密码绑定以及 Ping 检测命令注入等安全问题
+- 🐞 修复 channels 4 下 WebSocket 无法连接的问题
 
 ## 3.4.0
 `2026-06-12`
@@ -635,7 +659,7 @@ sidebar_position: 2
 `2020-06-11`
 - 🌟 监控中心现已支持企业微信告警
 - 🌟 任务计划增加立即执行测试功能
-- 🌟 新增常规发布全局变量 `SPUG_GIT_BRANCH`,`SPUG_GIT_COMMIT_ID`,`SPUG_GIT_TAG` [文档](/docs/deploy-config/#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F)
+- 🌟 新增常规发布全局变量 `SPUG_GIT_BRANCH`,`SPUG_GIT_COMMIT_ID`,`SPUG_GIT_TAG` [文档](/docs/deploy-config/#global-env)
 - 🔧 优化常规发布目录已存在时的提示信息
 - 🔧 优化发布时服务侧执行的动作或命令的环境变量
 - 🔧 优化发布结果通知多主机时的展示效果
@@ -723,7 +747,7 @@ sidebar_position: 2
 
 `2020-04-07`
 - 🔧 优化创建发布申请应用名称过长时气泡显示完整名称
-- 🔧 发布添加`SPUG_DEPLOY_ID`,`SPUG_HOST_ID`,`SPUG_HOST_NAME`全局变量 [文档](/docs/deploy-config/#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F)
+- 🔧 发布添加`SPUG_DEPLOY_ID`,`SPUG_HOST_ID`,`SPUG_HOST_NAME`全局变量 [文档](/docs/deploy-config/#global-env)
 - 🐞 修复某些错误未能正常反馈到发布详情页的问题
 
 ## 2.2.2

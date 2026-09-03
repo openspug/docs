@@ -10,37 +10,42 @@ title: 手动部署
 
 ## 准备环境
 
-- Python 3.6及以上
-- Mysql 5.6及以上
+- Python 3.8 及以上
+- MySQL 5.7 / MariaDB 10.3 及以上
+- Redis 5.0 及以上
+- Git 2.17.0 及以上（影响新建常规发布申请单）
+- rsync、sshfs（文件分发与流水线数据传输需要）、ping（监控 Ping 检测需要）
 - 现代浏览器
-- 自 `v2.3.9` 开始 `Git` 版本需要 `2.17.0+` （影响新建常规发布申请单）
 
 ## 安装步骤
-以下安装步骤假设项目部署在一台 `Centos7` 系统的 `/data/spug` 目录下。
+以下安装步骤假设项目部署在一台 `CentOS 7` 系统的 `/data/spug` 目录下，`Ubuntu / Debian` 仅安装依赖的命令不同。
 
 ### 1. Clone项目代码
 ```bash
 git clone https://github.com/openspug/spug /data/spug
 cd /data/spug
-git checkout x.x.x   # x.x.x 为指定的发行版本，例如 git checkout v2.2.2 
+git checkout 4.0
 ```
 
-### 2. [下载](https://github.com/openspug/spug/releases) 已编译打包后的前端项目
-将下载好的前端压缩包解压到指定目录，假设`web_x.y.z.tar.gz` 是的你下载好的压缩包
+### 2. 下载已编译打包后的前端项目
+将下载好的前端压缩包解压到 `spug_web` 目录（会生成 `build` 目录）：
+
+```bash
+curl -o /tmp/web_v4.0.0.tar.gz https://cdn.spug.cc/spug/web_v4.0.0.tar.gz
+tar xf /tmp/web_v4.0.0.tar.gz -C /data/spug/spug_web/
+```
 
 :::tip 提示
-访问 [`Github`](https://github.com/openspug/spug/releases) 比较慢的情况下，可以在尝试在 [`Gitee`](https://gitee.com/openspug/spug/releases) 下载。
+也可以按 [二次开发](/docs/install#10-打包前端) 文档自行执行 `npm run build` 打包。
 :::
 
-```bash
-tar xf web_x.y.z.tar.gz -C /data/spug/spug_web/;
-```
-
 ### 3. 创建运行环境
-如需要使用常规发布功能，则需要安装 <font color="red">git v2.17.0+</font>。
 ```bash
-# 安装依赖
-yum install mariadb-devel python3-devel gcc openldap-devel redis nginx supervisor rsync sshfs
+# CentOS 安装依赖
+yum install -y mariadb-devel python3-devel gcc openldap-devel redis nginx supervisor rsync fuse-sshfs iputils git
+
+# Ubuntu / Debian 安装依赖
+# apt install -y libmariadb-dev python3-dev python3-venv gcc libldap2-dev libsasl2-dev redis-server nginx supervisor rsync sshfs iputils-ping git
 
 # 创建虚拟环境
 cd /data/spug/spug_api
@@ -54,7 +59,7 @@ pip install gunicorn mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/
 ```
 
 ### 4. 修改后端配置
-后端默认使用的 `Sqlite` 数据库，通过修改配置使用 `MYSQL` 作为后端数据库，[如何使用SqlServer数据库？](/docs/install-problem#use-sqlserver)
+后端默认使用的 `SQLite` 数据库，通过修改配置使用 `MySQL` 作为后端数据库，[如何使用SqlServer数据库？](/docs/install-problem#use-sqlserver)
 
 :::caution 注意
 在 `spug_api/spug/` 目录下创建 `overrides.py` 文件，启动后端服务后会自动覆盖默认的配置，避免直接修改 `settings.py` 以便于后期获取新版本。
@@ -62,6 +67,8 @@ pip install gunicorn mysqlclient -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 ```python title="spug_api/spug/overrides.py"
 DEBUG = False
+# 请替换为随机字符串，用于签名会话等安全用途
+SECRET_KEY = 'replace-me-with-a-random-string'
 
 DATABASES = {
     'default': {
@@ -128,6 +135,8 @@ stdout_logfile = /data/spug/spug_api/logs/scheduler.log
 redirect_stderr = true
 ```
 
+各服务说明：`spug-api` 为 HTTP 接口（gunicorn，`127.0.0.1:9001`），`spug-ws` 为 WebSocket 服务（daphne，`127.0.0.1:9002`），`spug-worker` 执行批量执行、发布、流水线等任务，`spug-monitor` 与 `spug-scheduler` 分别为监控与任务计划的调度进程。`Ubuntu / Debian` 的 supervisor 配置目录为 `/etc/supervisor/conf.d/`，文件名后缀为 `.conf`。
+
 ### 8. 创建前端nginx配置文件
 ```bash title="/etc/nginx/conf.d/spug.conf"
 server {
@@ -137,11 +146,11 @@ server {
         client_max_body_size 20m;   # 该值会影响文件管理器可上传文件的大小限制，请合理调整
 
         gzip  on;
-	    gzip_min_length  1k;
-	    gzip_buffers     4 16k;
-	    gzip_http_version 1.1;
-	    gzip_comp_level 7;
-	    gzip_types       text/plain text/css text/javascript application/javascript application/json;
+        gzip_min_length  1k;
+        gzip_buffers     4 16k;
+        gzip_http_version 1.1;
+        gzip_comp_level 7;
+        gzip_types       text/plain text/css text/javascript application/javascript application/json;
         gzip_vary on;
 
         location ^~ /api/ {
@@ -191,4 +200,5 @@ systemctl restart supervisord
 
 ### 11. 安全建议
 - 请确保安装的 `Redis` 仅监听在 `127.0.0.1`。如果需要使用密码认证的 `Redis` 请参考 [如何配置使用带密码的 Redis 服务？](/docs/install-problem/#use-redis)
-- 如添加外层代理服务，请正确配置 `HTTP Header` 的 `X-Forwarded-For` ，`Spug` 会使用该请求头提高安全性（当登用户的 IP 发生变化时 Token 自动失效），[参考文档](/docs/practice)。
+- 如添加外层代理服务，请正确配置 `HTTP Header` 的 `X-Forwarded-For`，`Spug` 会使用该请求头提高安全性（当登录用户的 IP 发生变化时 Token 自动失效），[参考文档](/docs/practice)。
+- 建议在 `系统设置 / 安全设置` 中开启登录 MFA，并通过防火墙限制访问来源。

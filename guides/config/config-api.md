@@ -29,14 +29,18 @@ sidebar_position: 5
     | 参数名 | 类型 | 必填 | 默认值 | 示例 | 说明 |
     | --- | :---: | :---: | --- | --- | --- |
     | apiToken | string | 是 | | $SPUG_API_TOKEN | 固定值，`Spug` 内置的全局变量，仅可在发布配置的钩子中引用 |
-    | format   | string | 否 | kv | json  | 返回的格式，目前支持 `kv` 、`env` 和 `json` 三种格式，分别对应 `key = value` 、 `key=value` 和 `{"key": "value"}`，其中 `env` 为 v2.3.8 新增 |
-    | noPrefix | string | 否 | | 1 | v2.3.8 新增，默认返回的 `key` 会增加应用或服务的标示作为前缀来确保不会出现同名的 `key` 造成配置的意外覆盖问题，如果不需要这一特性可以传该参数来禁用这一默认行为 |
+    | format   | string | 否 | kv | json  | 返回的格式，目前支持 `kv` 、`env` 和 `json` 三种格式，分别对应 `key = value` 、 `key=value` 和 `{"key": "value"}` |
+    | noPrefix | string | 否 | | 1 | 默认返回的 `key` 会增加应用或服务的标示作为前缀来确保不会出现同名的 `key` 造成配置的意外覆盖问题，如果不需要这一特性可以传该参数来禁用这一默认行为 |
 
 - 使用示例
-    
+
     以下截图即在 `应用发布前` 中调用了获取配置的接口，将会把该应用该环境下的配置保存在 `.env` 文件中。
-    
+
     ![about](https://cdn.spug.cc/v2/api-config.jpg)
+
+:::tip 提示
+发布与构建过程中，配置中心的配置还会自动以环境变量的形式注入，变量名为 `_SPUG_` 加大写的 `标识符_Key`，例如 `_SPUG_API_ORDER_DB_HOST`，可以在钩子脚本中直接使用，无需调用接口；执行 `env | grep _SPUG_` 可以查看全部可用变量。
+:::
 
 ### 独立使用
 
@@ -49,11 +53,11 @@ sidebar_position: 5
     | apiKey | string | 是 | | JLV8IGO0DhoxcM7I | 调用接口的访问凭据，在 `Spug` 系统管理/系统设置/开放服务设置 中配置，请勿泄露给他人 |
     | app | string | 是 | | order | 指定要获取其配置的应用的标识符（创建应用时设置的该标识符，请在应用管理或应用配置页面查看应用的标识符） |
     | env | string | 是 | | dev | 指定获取应用所在环境的标识符（创建环境时设置的该标识符，请在 配置中心/环境管理页面查看环境标识符）
-    | format   | string | 否 | kv | json  | 返回的格式，目前支持 `kv` 、`env` 和 `json` 三种格式，分别对应 `key = value` 、 `key=value` 和 `{"key": "value"}`，其中 `env` 为 v2.3.8 新增 |
-    | noPrefix | string | 否 | | 1 | v2.3.8 新增，默认返回的 `key` 会增加应用或服务的标示作为前缀来确保不会出现同名的 `key` 造成配置的意外覆盖问题，如果不需要这一特性可以传该参数来禁用这一默认行为 |
+    | format   | string | 否 | kv | json  | 返回的格式，目前支持 `kv` 、`env` 和 `json` 三种格式，分别对应 `key = value` 、 `key=value` 和 `{"key": "value"}` |
+    | noPrefix | string | 否 | | 1 | 默认返回的 `key` 会增加应用或服务的标示作为前缀来确保不会出现同名的 `key` 造成配置的意外覆盖问题，如果不需要这一特性可以传该参数来禁用这一默认行为 |
 
 - 使用示例1
-    
+
     ```shell script
     curl "https://demo.spug.cc/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test"
     ```
@@ -71,7 +75,7 @@ sidebar_position: 5
     redis_password = 123456
     ```
 - 使用示例2
-    
+
     ```shell script
     curl "https://demo.spug.cc/api/apis/config/?apiKey=JLV8IGO0DhoxcM7I&app=order&env=test&noPrefix=1"
     ```
@@ -86,7 +90,17 @@ sidebar_position: 5
     url = http://test-order.internal.com
     username = root
     ```
-  
+
   :::info 说明
   可以通过对比发现，在 `noPrefix` 模式下，服务 `订单主库`（标识符 db_order）的配置 `host` 和 `password` 被服务 `Redis服务`（标识符 redis）覆盖了，所以最终的配置意外丢失了2个。
   :::
+
+## 动态更新配置
+
+在常规发布、自定义发布的服务端执行阶段，脚本中导出 `SPUG_SET` 变量可以创建或更新配置中心的配置，格式为 `应用/服务标识符:环境标识符:变量名=变量值`，例如：
+
+```bash
+export SPUG_SET="order:prod:release_version=$SPUG_VERSION"
+```
+
+更新会记录到配置的更改历史中，详见 [发布配置](/docs/deploy-config#spug-set)。
