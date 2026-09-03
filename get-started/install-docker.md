@@ -13,7 +13,7 @@ sidebar_position: 1
 - 现代浏览器（Chrome / Edge / Firefox / Safari 最新版本）
 
 :::info 支持的 CPU 架构
-`openspug/spug-service` 镜像同时提供 `amd64` 与 `arm64` 两种架构，鲲鹏、飞腾、树莓派、Apple Silicon 等 ARM64 主机可直接使用 `latest` 标签，Docker 会自动拉取对应架构的镜像。暂不支持 32 位 ARM（armv7）。
+Docker Hub 上的 `openspug/spug-service` 镜像，`4.0.0`（本文档对应的 4.0 版本）与 `latest`（3.x，不是 4.0）两个标签都同时提供 `amd64` 与 `arm64` 架构，Docker 会按宿主机架构自动选择，鲲鹏、飞腾、树莓派、Apple Silicon 等 ARM64 主机可直接使用。ARM64 主机请从 Docker Hub 拉取，阿里云镜像仓库目前只有 x86 架构的 3.x 镜像；暂不支持 32 位 ARM（armv7）。
 :::
 
 ## 安装步骤
@@ -65,7 +65,7 @@ services:
       - MYSQL_PASSWORD=spug.cc
       - MYSQL_ROOT_PASSWORD=spug.cc
   spug:
-    image: openspug/spug-service
+    image: openspug/spug-service:4.0.0
     container_name: spug
     privileged: true
     restart: always
@@ -76,6 +76,7 @@ services:
       # 如果 80 端口被占用可替换为其他端口，例如: - "8000:80"
       - "80:80"
     environment:
+      - SPUG_DOCKER_VERSION=v4.0.0
       - MYSQL_DATABASE=spug
       - MYSQL_USER=spug
       - MYSQL_PASSWORD=spug.cc
@@ -90,19 +91,14 @@ services:
 | 路径 / 参数 | 说明 |
 | --- | --- |
 | `/data/spug/mysql` | 数据库数据目录，请务必持久化 |
-| `/data/spug/service` | Spug 程序目录（容器内 `/data/spug`），首次启动时自动释放代码并生成配置文件 `spug_api/spug/overrides.py` |
+| `/data/spug/service` | Spug 程序目录（容器内 `/data/spug`），首次启动时从 gitee 拉取 `SPUG_DOCKER_VERSION` 指定版本的代码并下载前端包，同时生成配置文件 `spug_api/spug/overrides.py` |
 | `/data/spug/repos` | 常规发布的代码仓库与构建产物存储目录 |
+| `SPUG_DOCKER_VERSION` | 首次启动时拉取的代码版本（git 标签），必须与镜像版本对应，`4.0.0` 镜像请填写 `v4.0.0`；该变量没有默认值，缺少时容器会在拉取代码阶段退出并反复重启 |
 | `MYSQL_*` | 数据库连接信息，与 `db` 服务保持一致；也可改为你自己的外部 MySQL，[参考文档](/docs/install-problem#use-mysql) |
 | `privileged: true` | 文件分发功能依赖 `sshfs` 挂载，需要特权模式 |
 
 :::caution 镜像加速
-受网络影响可能会导致镜像下载失败，可以替换 `docker-compose.yml` 中的镜像地址为阿里云镜像仓库：
-```yaml
-db:
-    image: registry.cn-hangzhou.aliyuncs.com/openspug/mariadb:10.8
-spug:
-    image: registry.cn-hangzhou.aliyuncs.com/openspug/spug-service
-```
+阿里云镜像仓库 `registry.cn-hangzhou.aliyuncs.com/openspug/spug-service` 目前仅提供 x86 架构的 3.x 镜像，没有 `4.0.0` 标签，也没有 ARM64 版本，请不要把上面的镜像地址替换为阿里云地址。受网络影响拉取 Docker Hub 镜像失败时，请为 Docker 配置 Docker Hub 镜像加速器（在 `/etc/docker/daemon.json` 中设置 `registry-mirrors` 后重启 Docker），无需修改 `docker-compose.yml` 中的镜像地址。
 :::
 
 ### 3. 启动容器
@@ -115,6 +111,10 @@ docker compose up -d
 旧版本的 `docker-compose` 独立安装方式请执行 `docker-compose up -d`。
 :::
 
+:::info 首次启动需要访问外网
+与内置代码的 3.x 镜像不同，`4.0.0` 镜像不内置代码：容器首次启动时会从 `gitee.com` 克隆 `SPUG_DOCKER_VERSION` 指定版本的代码，并从 `cdn.spug.cc` 下载对应的前端包，请确保服务器可以访问这两个地址，内网 / 离线环境无法直接完成首次启动。拉取代码与初始化数据库通常需要 10～30 秒（可通过 `docker logs -f spug` 查看容器日志），完成后再执行第 4 步。
+:::
+
 ### 4. 初始化
 
 以下命令会初始化数据库表结构，并创建一个用户名为 `admin`、密码为 `spug.cc` 的管理员账户，可自行替换账户 / 密码。
@@ -124,7 +124,7 @@ docker exec spug init_spug admin spug.cc
 ```
 
 :::tip 提示
-如果首次启动时数据库容器还未就绪导致初始化失败，等待几秒后重新执行上述命令即可。
+首次启动时请等待代码拉取完成、数据库初始化就绪（通常 10～30 秒）再执行上述命令。如果报错 `can't open file '/data/spug/spug_api/manage.py'`（代码尚未拉取完成）或 `Can't connect to MySQL server on 'db:3306'`（数据库还未就绪）导致初始化失败，等待几秒后重新执行即可。
 :::
 
 ### 5. 访问测试

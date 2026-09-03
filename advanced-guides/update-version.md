@@ -20,32 +20,39 @@ title: 版本升级
 
 ### Docker 安装
 
+:::danger 不要使用 manage.py update 从 3.x 升级到 4.0
+`manage.py update` 会把 4.0 的 Python 依赖用 pip 安装进 3.x 容器，容器一旦重建这些依赖就会丢失，它只用于 4.x 之间的小版本更新。从 3.x 升级到 4.0 请按下面的步骤更换镜像。
+:::
+
 1. 备份数据库与数据目录：
    ```bash
    docker exec spug-db mysqldump -uroot -pspug.cc spug > spug-backup.sql
    cp -r /data/spug /data/spug.bak
    ```
-2. 拉取新版镜像并重建容器（`docker-compose.yml` 无需修改）：
+2. 修改 `docker-compose.yml`，把 `spug` 服务的镜像改为 `openspug/spug-service:4.0.0`，并在 `environment` 中增加 `SPUG_DOCKER_VERSION=v4.0.0`（其余配置保持不变），然后重建容器：
+   ```yaml
+     spug:
+       image: openspug/spug-service:4.0.0
+       environment:
+         - SPUG_DOCKER_VERSION=v4.0.0
+         - MYSQL_DATABASE=spug
+         # ……其余配置保持不变
+   ```
    ```bash
    cd /data/spug
-   docker compose pull
    docker compose up -d
    ```
-3. 新镜像启动时会自动释放 4.0 的代码，执行数据库结构更新：
+3. 在容器内把代码切换到 `v4.0.0`、下载对应的前端包并升级表结构（原有的管理员账号、执行模板等数据以及 `overrides.py` 中的自定义配置都会保留）：
    ```bash
-   docker exec spug python3 /data/spug/spug_api/manage.py updatedb
+   docker exec spug bash -c 'cd /data/spug && git fetch origin --tags && git checkout v4.0.0 && curl -fo /tmp/web.tar.gz https://cdn.spug.cc/spug/web_v4.0.0.tar.gz && rm -rf spug_web/build && tar xf /tmp/web.tar.gz -C spug_web/ && python3 spug_api/manage.py updatedb'
+   ```
+4. 重启容器，在 `系统设置 / 关于` 中确认版本已是 `v4.0.0`，并强制刷新浏览器：
+   ```bash
    docker restart spug
    ```
 
-:::info 说明
-3.x 的容器把代码释放在 `/data/spug/service` 目录，4.0 镜像检测到该目录已存在时不会覆盖。如果升级后 `系统设置 / 关于` 中的版本仍为 3.x，请把旧代码目录移走后重新启动容器（数据库不受影响）：
-```bash
-docker compose down
-mv /data/spug/service /data/spug/service.3x
-docker compose up -d
-docker exec spug python3 /data/spug/spug_api/manage.py updatedb
-```
-如在 `service/spug_api/spug/overrides.py` 中有自定义配置（如外部数据库、Redis 密码），请复制到新的目录中。
+:::info 为什么不能只执行 docker compose pull
+Docker Hub 上的 `latest` 标签目前仍是 3.3.3，只执行 `docker compose pull` 拿不到 4.0。即使换成 `4.0.0` 镜像，它启动时发现 `/data/spug/service` 中已有代码也不会覆盖，因此必须执行第 3 步手动切换代码，否则 3.x 的代码会运行在 Django 4.2 环境上，容器状态虽然是 running，但所有接口都会报错。
 :::
 
 ### 手动部署
@@ -54,7 +61,7 @@ docker exec spug python3 /data/spug/spug_api/manage.py updatedb
 2. 安装 Python 3.8 及以上版本并重建虚拟环境：
    ```bash
    cd /data/spug/spug_api
-   git fetch origin && git checkout 4.0
+   git fetch origin --tags && git checkout v4.0.0
    rm -rf venv && python3 -m venv venv
    source venv/bin/activate
    pip install -U pip setuptools
@@ -65,6 +72,8 @@ docker exec spug python3 /data/spug/spug_api/manage.py updatedb
 4. 确认 `supervisor` 中的 `spug-ws` 使用 `tools/start-ws.sh`（`daphne`）启动，然后 `supervisorctl restart all`。
 
 ## 4.x 版本之间更新
+
+以下方式仅用于 4.x 之间的小版本更新，从 3.x 升级到 4.0 请按上一节操作。
 
 ### Docker 安装，版本更新
 ```bash
