@@ -135,7 +135,7 @@ docker exec spug init_spug admin spug.cc
 
 可以在 `系统管理 / 系统设置 / 关于` 中查看当前运行的 `Spug` 版本，在 [更新日志](/docs/change-log) 查看最新版本，升级方法请参考 [版本升级文档](/docs/update-version)。
 
-## 常用运维命令
+## 常用运维命令 {#ops-commands}
 
 ```bash
 # 查看容器日志

@@ -2,7 +2,7 @@
 id: faq
 slug: /faq
 title: FAQ
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 以下整理社区中反馈的常见问题和官方答复，在提问之前建议先找找有没有类似的问题。

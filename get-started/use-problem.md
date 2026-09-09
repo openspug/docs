@@ -2,7 +2,7 @@
 id: use-problem
 slug: /use-problem
 title: 使用常见问题
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 ### 使用 nohup 启动后台进程页面一直在转圈不会结束？ {#nohup}

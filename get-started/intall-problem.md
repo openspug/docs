@@ -2,7 +2,7 @@
 id: install-problem
 slug: /install-problem
 title: 安装相关问题
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 ### 执行数据初始化命令 python manage.py updatedb 报错

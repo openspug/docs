@@ -2,7 +2,7 @@
 id: dev-problem
 slug: /dev-problem
 title: 二开相关问题
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 ### 标准安装批量执行、发布、流水线的任务卡住无法看到执行输出
