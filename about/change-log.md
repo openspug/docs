@@ -12,6 +12,16 @@ sidebar_position: 2
 :::
 
 
+## 4.0.1
+`2026-09-09`
+
+- 🐛 修复非超级管理员账户（包括从 3.x 升级的历史账户与 LDAP 账户）登录时报错 `the JSON object must be str, bytes or bytearray, not dict`，以及 Dashboard、主机分组、发布 / 配置 / 应用列表随之报错的问题
+- 🐛 修复新建角色时报错 `Role() got unexpected keyword arguments: 'created_by'` 的问题
+- 🐛 修复从 3.x 升级后沿用旧的 LDAP 配置登录时报错 `unexpected keyword argument 'port'` 的问题，旧配置会自动按 4.0 的格式换算，在系统设置中重新保存一次即可
+- 🐛 修复 LDAP 设置重新保存后，LDAP 用户列表仍使用旧配置的问题
+- 🐛 修复 LDAP 测试连接时把绑定密码输出到服务日志的问题
+- 🌟 Docker Compose 示例改用 `openspug/spug-service:4.0` 镜像标签，4.0.x 小版本更新只需修改 `SPUG_DOCKER_VERSION`
+
 ## 4.0.0
 `2026-09-03`
 
