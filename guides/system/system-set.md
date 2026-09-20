@@ -62,7 +62,7 @@ sidebar_position: 5
 
 ![开放服务设置](/img/docs/4.0/zh/setting-service.jpg)
 
-- **访问凭据**：用于访问平台的开放服务，例如 [配置中心 API](/docs/config-api) 的 `apiKey` 参数以及 [Webhook 自动发布](/docs/deploy-webhook) 的 Secret Token，请妥善保管。
+- **访问凭据**：用于访问平台的开放服务，例如 [开放 API](/docs/open-api) 的 `X-Api-Key` 请求头、[配置中心 API](/docs/config-api) 的 `apiKey` 参数以及 [Webhook 自动发布](/docs/deploy-webhook) 的 Secret Token，请妥善保管。
 
 ## 关于
 
