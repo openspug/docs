@@ -12,6 +12,28 @@ sidebar_position: 2
 :::
 
 
+## 4.1.0
+`2026-10-10`
+
+- 🎉 新增 **全合一 Docker 镜像** `openspug/spug`（同步发布到 `ghcr.io/openspug/spug`），内置后端与前端，支持 amd64 / arm64，容器启动时不再下载任何代码，隔离网络也能使用 [参考文档](/docs/install-docker#all-in-one)
+  - 每次启动自动创建 / 升级表结构，首个 `admin` 账号的随机密码输出到容器日志（也可通过 `SPUG_ADMIN_PASSWORD` 指定），升级只需 `docker compose pull && docker compose up -d`
+  - Compose 文件不再使用 `privileged: true`，基于 `sshfs` 的文件分发只需 `SYS_ADMIN` 权限与 `/dev/fuse` 设备；通过 `TZ` 设置任务计划与页面时间的时区
+  - `docker run -d -p 8080:80 openspug/spug:4.1` 可使用 SQLite 单容器快速体验
+  - ⚠️ `openspug/spug` 的 `latest` 标签已指向 4.x，仍在使用 3.x 旧版全合一镜像（容器内置 MariaDB）的请把镜像固定为 `openspug/spug:3.3.2`，4.x 容器检测到旧数据卷会拒绝启动且不改动数据；`openspug/spug-service` 镜像不受影响
+- 🌟 开放 API 支持触发批量执行模板与流水线并查询执行结果 [#718](https://github.com/openspug/spug/issues/718) [参考文档](/docs/open-api)
+- 🌟 开放 API 新增只读主机清单接口，可直接作为 Ansible 动态 inventory 使用 [#739](https://github.com/openspug/spug/issues/739) [参考文档](/docs/open-api)
+- 🌟 批量执行支持单台失败主机重试与一键重试全部失败主机 [#722](https://github.com/openspug/spug/issues/722) [参考文档](/docs/batch-exec)
+- 🌟 流水线新增执行记录，可查看历史执行的状态、触发方式、耗时并回放控制台输出 [参考文档](/docs/pipeline#history)
+- 🐞 修复全新安装时装上 redis-py 8 后，任务、调度、监控等后台服务每 5 秒重启一次，导致任务计划与监控不稳定的问题（依赖固定为 redis-py 8 以下）
+- 🐞 修复浏览器已断开连接时 WebSocket 控制台日志报错 `Attempt to send on a closed protocol` 的问题 [#758](https://github.com/openspug/spug/issues/758)
+- 🐞 修复流水线带默认值的动态参数在执行时被提示必填，以及通过开放 API 触发时默认值未生效的问题
+- 🐞 修复流水线历史回放丢失节点最终状态的问题
+- 🐞 修复 Dashboard 告警趋势不含当天数据、英文界面下按类型筛选无数据的问题
+- 🐞 修复主机磁盘采集忽略 10GB 以下的磁盘，并把 ram / loop / cdrom 设备计入的问题 [#721](https://github.com/openspug/spug/issues/721)
+- 🐞 修复产品内文档链接指向已失效地址的问题，统一指向 ops.spug.cc
+- 🔧 新增安全策略 `SECURITY.md`，说明漏洞报告方式；问题反馈模板支持中英文
+
+
 ## 4.0.1
 `2026-09-09`
 

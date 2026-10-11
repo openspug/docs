@@ -16,7 +16,29 @@ sidebar_position: 1
 Docker Hub 上的 `openspug/spug-service` 镜像，`4.0`（本文档对应的 4.0 版本，当前代码版本为 v4.0.1）与 `latest`（3.x，不是 4.0）两个标签都同时提供 `amd64` 与 `arm64` 架构，Docker 会按宿主机架构自动选择，鲲鹏、飞腾、树莓派、Apple Silicon 等 ARM64 主机可直接使用。ARM64 主机请从 Docker Hub 拉取，阿里云镜像仓库目前只有 x86 架构的 3.x 镜像；暂不支持 32 位 ARM（armv7）。
 :::
 
+## 全合一镜像（4.1 新增） {#all-in-one}
+
+从 4.1.0 起官方另外提供全合一镜像 `openspug/spug`（同步发布到 `ghcr.io/openspug/spug`，支持 `amd64` / `arm64`），镜像内置后端与前端，容器启动时不再下载任何代码。能稳定访问 Docker Hub 与 GitHub 时，可以直接用以下命令安装（需要 Docker 20.10.10 及以上）：
+
+```bash
+mkdir -p /opt/spug && cd /opt/spug
+curl -fsSLO https://raw.githubusercontent.com/openspug/spug/4.0/docker-compose.yml
+# 默认时区为 UTC，国内使用改为北京时间
+sed -i 's#TZ: UTC#TZ: Asia/Shanghai#' docker-compose.yml
+docker compose up -d
+docker compose logs spug | grep password
+```
+
+首次启动会自动建表，并为 `admin` 账号生成随机密码（即最后一条命令的输出），浏览器访问 `http://<服务器IP>/` 登录后请在右上角头像菜单的个人中心修改密码。以后升级执行 `docker compose pull && docker compose up -d` 即可，配置与数据保存在 `spug-data`、`spug-db` 两个数据卷中，完整配置项说明见 [英文文档](https://ops.spug.cc/en/docs/install-docker/#all-in-one)。
+
+:::caution 注意
+- 国内网络访问 Docker Hub / GitHub 不稳定时，请按下文的 `openspug/spug-service` 方式安装，该方式的代码版本目前为 v4.0.1。
+- 以前用 `openspug/spug`（3.x，容器内置 MariaDB）安装的，请把镜像固定为 `openspug/spug:3.3.2`，4.x 镜像检测到旧数据卷会拒绝启动且不改动数据。
+:::
+
 ## 安装步骤
+
+以下为 `openspug/spug-service` 镜像的安装方式。
 
 以下步骤以 `Ubuntu 22.04` / `CentOS 7` 为例，其他 Linux 发行版仅安装 Docker 的命令不同。
 
