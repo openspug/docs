@@ -12,6 +12,19 @@ sidebar_position: 2
 :::
 
 
+## 4.1.2
+`2026-11-04`
+
+- 🐞 修复升级 4.x 后，日志订阅或慢 SSH 连接阻塞其他终端输入和通知，导致终端卡顿、连接关闭超时的问题
+- 🐞 修复 SSH 持续大量输出时刷新不及时、大段输入可能发送不完整，以及中文跨输出批次出现乱码的问题
+- 🔧 完善 WebSocket 断开、异常和应用取消时的读取线程、SSH 与 Redis 资源清理
+
+## 4.1.1
+`2026-10-12`
+
+- 🔒 修复主机权限、开放 API、Git 仓库和文件分发等六项安全问题，详见 [安全公告](https://github.com/openspug/spug/security/advisories)
+- 🔧 升级 GitPython、python-ldap 和 axios 依赖；4.x 用户建议升级，行为变更见 [发布说明](https://github.com/openspug/spug/releases/tag/v4.1.1)
+
 ## 4.1.0
 `2026-10-10`
 
